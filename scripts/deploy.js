@@ -1,7 +1,7 @@
 const { ethers } = require("hardhat");
 
 async function main() {
-const StorageContract = await ethers.getContractFactory("Storage");
+const StorageContract = await ethers.getContractFactory("NodeManager");
 const storageContract = await StorageContract.deploy();
 
 await storageContract.waitForDeployment();

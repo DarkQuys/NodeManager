@@ -1,34 +1,26 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.24;
-
-// Uncomment this line to use console.log
-// import "hardhat/console.sol";
-
-contract Lock {
-    uint public unlockTime;
-    address payable public owner;
-
-    event Withdrawal(uint amount, uint when);
-
-    constructor(uint _unlockTime) payable {
-        require(
-            block.timestamp < _unlockTime,
-            "Unlock time should be in the future"
-        );
-
-        unlockTime = _unlockTime;
-        owner = payable(msg.sender);
+pragma solidity ^0.8.20;
+import "@openzeppelin/contracts/access/Ownable.sol";
+contract UserManager is Ownable(msg.sender){
+    struct User{
+        string name  ;
+        string email ; 
+        string ipfsHash ;
     }
-
-    function withdraw() public {
-        // Uncomment this line, and the import of "hardhat/console.sol", to print a log in your terminal
-        // console.log("Unlock time is %o and block timestamp is %o", unlockTime, block.timestamp);
-
-        require(block.timestamp >= unlockTime, "You can't withdraw yet");
-        require(msg.sender == owner, "You aren't the owner");
-
-        emit Withdrawal(address(this).balance, block.timestamp);
-
-        owner.transfer(address(this).balance);
+    mapping(address => User) private Users ;
+    event registered(address indexed acc, string name , string email , string ipfsHash) ;
+    event updated(address indexed acc , string name , string email , string ipfsHash ) ; 
+    function registerUser(string memory name ,  string memory email ,string memory ipfsHash)public {
+        require(bytes(Users[msg.sender].name).length ==0 ," User already rigisted" ) ;
+        Users[msg.sender] = User(name , email , ipfsHash) ;
+        emit registered(msg.sender, name, email, ipfsHash);
+    }
+    function updateUser(string memory name , string memory email , string memory ipfsHash)public {
+        require(bytes(Users[msg.sender].name).length !=0 ,"User not register");
+        Users[msg.sender] = User(name ,  email,  ipfsHash) ;
+        emit updated(msg.sender, name , email,  ipfsHash);
+    }
+    function getUser(address userAddress) public view returns (string memory , string memory , string memory ){
+        require( bytes(Users[msg.sender].name).length !=0 ,"user not register") ;
+        return (Users[msg.sender].name ,Users[msg.sender].email , Users[msg.sender].ipfsHash ) ;
     }
 }
